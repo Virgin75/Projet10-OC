@@ -1,13 +1,13 @@
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from rest_framework import permissions
-from issuetracker.serializers import UserSerializer
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+
+from issuetracker.models import Project
+from issuetracker.serializers import ProjectSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+class ProjectViewSet(viewsets.ModelViewSet):
+    """A simple ViewSet for viewing and editing accounts."""
+
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
     #permission_classes = [permissions.IsAuthenticated]
