@@ -1,13 +1,24 @@
+
 from rest_framework import serializers
-from issuetracker.models import Project, Issue, Comment
+import uuid
+
+from issuetracker.models import Contributor, Project, Issue, Comment
 from users.serializers import UserSerializer
+
+
+class ContributorSerializer(serializers.ModelSerializer):
+
+    user = UserSerializer()
+
+    class Meta:
+        model = Contributor
+        fields = ('user', 'role')
 
 
 class ProjectSerializer(serializers.ModelSerializer):
 
-    contributors = UserSerializer(many=True, read_only=True)
+    contributors_relation = ContributorSerializer(many=True, read_only=True)
 
     class Meta:
         model = Project
-        fields = ('id', 'title', 'description', 'type', 'contributors')
-        depth = 1
+        fields = ('id', 'title', 'description', 'type', 'contributors_relation')

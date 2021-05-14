@@ -20,6 +20,8 @@ class Contributor(models.Model):
         on_delete=models.CASCADE)
     project = models.ForeignKey(
         Project,
+        related_name='contributors_relation',
+        related_query_name='contributors_relation',
         on_delete=models.CASCADE)
     role = models.CharField(max_length=50)
 
