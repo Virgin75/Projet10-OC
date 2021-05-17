@@ -11,18 +11,16 @@ class Project(models.Model):
     type = models.CharField(max_length=50)
     contributors = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        through='Contributor')
+        through='Contributor',
+        related_name='contributor_user',
+        related_query_name='contributor_user')
 
 
 class Contributor(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE)
-    project = models.ForeignKey(
-        Project,
-        related_name='contributors_relation',
-        related_query_name='contributors_relation',
-        on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     role = models.CharField(max_length=50)
 
 
