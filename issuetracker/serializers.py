@@ -43,3 +43,15 @@ class IssueListSerializer(serializers.ModelSerializer):
         model = Issue
         fields = ('id', 'title', 'description', 'tag', 'priority',
                   'status', 'author', 'assignee', 'created_time')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    id = serializers.ReadOnlyField()
+    author = UserSerializer(read_only=True)
+    created_time = serializers.ReadOnlyField()
+    issue = serializers.PrimaryKeyRelatedField(queryset=Issue.objects.all())
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'description', 'author', 'issue', 'created_time')

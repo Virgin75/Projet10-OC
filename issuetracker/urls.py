@@ -1,7 +1,7 @@
 from django.urls import include, path
 from django.conf.urls import url
 from django.contrib import admin
-from issuetracker.views import ListCreateProject, ListCreateProjectContributor, RetrieveUpdateDestroyProject, DestroyContributor, ListCreateIssue, UpdateDestroyIssue
+from issuetracker.views import ListCreateProject, ListCreateProjectContributor, RetrieveUpdateDestroyProject, DestroyContributor, ListCreateIssue, UpdateDestroyIssue, ListCreateComment
 
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('projects/<uuid:project_id>/users/<int:user_id>/', DestroyContributor.as_view()),
     path('projects/<uuid:project_id>/issues/', ListCreateIssue.as_view()),
     path('projects/<uuid:project_id>/issues/<int:id>/', UpdateDestroyIssue.as_view()),
+    path('projects/<uuid:project_id>/issues/<int:id>/comments/', ListCreateComment.as_view()),
 ]

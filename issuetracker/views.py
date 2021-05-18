@@ -1,3 +1,4 @@
+from users.models import User
 from datetime import datetime
 
 from rest_framework import viewsets, permissions, mixins, generics
@@ -5,9 +6,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 
-from issuetracker.models import Project, Contributor, Issue
-from issuetracker.serializers import ProjectSerializer, ContributorListSerializer, ContributorDetailsSerializer, IssueListSerializer
-from users.models import User
+from issuetracker.models import Comment, Project, Contributor, Issue
+from issuetracker.serializers import ProjectSerializer, ContributorListSerializer, ContributorDetailsSerializer, IssueListSerializer, CommentSerializer
 
 
 class ListCreateProject(generics.ListCreateAPIView):
@@ -92,3 +92,23 @@ class UpdateDestroyIssue(generics.RetrieveUpdateDestroyAPIView):
         author = self.request.user
         now = datetime.now()
         serializer.save(project_id=project, author=author, created_time=now)
+
+
+class ListCreateComment(generics.ListCreateAPIView):
+
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
+        issue = project.issue_set.filter(id=self.kwargs.get('id'))
+        queryset = Comment.objects.filter(issue__in=issue)
+        return queryset
+
+    def perform_create(self, serializer):
+        '''
+        TODO
+        project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
+        author = self.request.user
+        now = datetime.now()
+        serializer.save(project_id=project, author=author, created_time=now)
+'''
