@@ -32,7 +32,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'description', 'type')
 
 
-class IssueListSerializer(serializers.ModelSerializer):
+class IssueSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField()
     author = UserSerializer(read_only=True)

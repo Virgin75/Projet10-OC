@@ -1,17 +1,24 @@
-from users.models import User
 from datetime import datetime
-
-from rest_framework import viewsets, permissions, mixins, generics
-from rest_framework.response import Response
+from rest_framework import permissions, generics
 from django.shortcuts import get_object_or_404
 
-
+from users.models import User
 from issuetracker.models import Comment, Project, Contributor, Issue
-from issuetracker.serializers import ProjectSerializer, ContributorListSerializer, ContributorDetailsSerializer, IssueListSerializer, CommentSerializer
+from issuetracker.serializers import (ProjectSerializer,
+                                      ContributorListSerializer,
+                                      ContributorDetailsSerializer,
+                                      IssueSerializer,
+                                      CommentSerializer)
 
 
 class ListCreateProject(generics.ListCreateAPIView):
-    """To edit."""
+    """
+    This view allows you to list all available projects and create new one.
+
+    Model: Project
+    Allowed methods: GET, POST.
+    Endpoint: .../projects/
+    """
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -19,7 +26,14 @@ class ListCreateProject(generics.ListCreateAPIView):
 
 
 class RetrieveUpdateDestroyProject(generics.RetrieveUpdateDestroyAPIView):
-    """To edit."""
+    """
+    This view allows you to view a project details, edit it or delete it.
+
+    Model: Project
+    Allowed methods: GET, PUT, PATCH, DELETE.
+    Endpoint: .../projects/<uuid:project_id>/
+    """
+
     lookup_url_kwarg = 'project_id'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -27,15 +41,22 @@ class RetrieveUpdateDestroyProject(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ListCreateProjectContributor(generics.ListCreateAPIView):
+    """
+    This view allows you to list all contributors of a project & add a new one.
+
+    Model: Contributor (through table User<>Project)
+    Allowed methods: GET, POST.
+    Endpoint: .../projects/<uuid:project_id>/users/
+    """
 
     queryset = Contributor.objects.all()
     serializer_class = ContributorListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-
         if self.request.method == 'GET':
-            project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
+            project = get_object_or_404(Project,
+                                        id=self.kwargs.get('project_id'))
             return super().get_queryset().filter(project=project)
 
     def get_serializer_class(self):
@@ -50,6 +71,13 @@ class ListCreateProjectContributor(generics.ListCreateAPIView):
 
 
 class DestroyContributor(generics.DestroyAPIView):
+    """
+    This view allows you to delete a contributor from a project.
+
+    Model: Contributor
+    Allowed methods: DELETE.
+    Endpoint: .../projects/<uuid:project_id>/users/<int:user_id>/
+    """
 
     serializer_class = ContributorListSerializer
     lookup_field = 'user_id'
@@ -62,8 +90,15 @@ class DestroyContributor(generics.DestroyAPIView):
 
 
 class ListCreateIssue(generics.ListCreateAPIView):
+    """
+    This view allows you to list all issues of a project & create a new one.
 
-    serializer_class = IssueListSerializer
+    Model: Issue
+    Allowed methods: GET, POST.
+    Endpoint: .../projects/<uuid:project_id>/issues/
+    """
+
+    serializer_class = IssueSerializer
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -78,13 +113,20 @@ class ListCreateIssue(generics.ListCreateAPIView):
 
 
 class UpdateDestroyIssue(generics.RetrieveUpdateDestroyAPIView):
+    """
+    This view allows you to view an issue details, edit it or delete it.
 
-    serializer_class = IssueListSerializer
-    lookup_field = 'id'
+    Model: Issue
+    Allowed methods: GET, PUT, PATCH, DELETE.
+    Endpoint: .../projects/<uuid:project_id>/issues/<int:issue_id>/
+    """
+
+    serializer_class = IssueSerializer
+    lookup_url_kwarg = 'issue_id'
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
-        queryset = project.issue_set.filter(id=self.kwargs.get('id'))
+        queryset = project.issue_set.filter(id=self.kwargs.get('issue_id'))
         return queryset
 
     def perform_update(self, serializer):
@@ -95,29 +137,43 @@ class UpdateDestroyIssue(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ListCreateComment(generics.ListCreateAPIView):
+    """
+    This view allows you to list all comments of an issue & create a new one.
+
+    Model: Comment
+    Allowed methods: GET, POST.
+    Endpoint: .../projects/<uuid:project_id>/issues/<int:issue_id>/comments/
+    """
 
     serializer_class = CommentSerializer
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
-        issue = project.issue_set.filter(id=self.kwargs.get('id'))
+        issue = project.issue_set.filter(id=self.kwargs.get('issue_id'))
         queryset = Comment.objects.filter(issue__in=issue)
         return queryset
 
     def perform_create(self, serializer):
-        issue = get_object_or_404(Issue, id=self.kwargs.get('id'))
+        issue = get_object_or_404(Issue, id=self.kwargs.get('issue_id'))
         author = self.request.user
         now = datetime.now()
         serializer.save(author=author, created_time=now, issue=issue)
 
 
 class RetrieveUpdateDestroyComment(generics.RetrieveUpdateDestroyAPIView):
+    """
+    This view allows you to view a comment details, edit it or delete it.
+
+    Model: Comment
+    Allowed methods: GET, PUT, PATCH, DELETE.
+    Endpoint: .../projects/<uuid:project_id>/issues/<int:issue_id>/comments/<int:comment_id>/
+    """
 
     serializer_class = CommentSerializer
     lookup_url_kwarg = 'comment_id'
 
     def get_queryset(self):
-        issue = get_object_or_404(Issue, id=self.kwargs.get('id'))
+        issue = get_object_or_404(Issue, id=self.kwargs.get('issue_id'))
         queryset = issue.comment_set.filter(id=self.kwargs.get('comment_id'))
         return queryset
 
