@@ -30,7 +30,7 @@ class ListCreateProjectContributor(generics.ListCreateAPIView):
 
     queryset = Contributor.objects.all()
     serializer_class = ContributorListSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
 
@@ -105,10 +105,24 @@ class ListCreateComment(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
-        '''
-        TODO
+        issue = get_object_or_404(Issue, id=self.kwargs.get('id'))
+        author = self.request.user
+        now = datetime.now()
+        serializer.save(author=author, created_time=now, issue=issue)
+
+
+class RetrieveUpdateDestroyComment(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = CommentSerializer
+    lookup_url_kwarg = 'comment_id'
+
+    def get_queryset(self):
+        issue = get_object_or_404(Issue, id=self.kwargs.get('id'))
+        queryset = issue.comment_set.filter(id=self.kwargs.get('comment_id'))
+        return queryset
+
+    def perform_update(self, serializer):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
         author = self.request.user
         now = datetime.now()
         serializer.save(project_id=project, author=author, created_time=now)
-'''

@@ -50,8 +50,7 @@ class CommentSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     author = UserSerializer(read_only=True)
     created_time = serializers.ReadOnlyField()
-    issue = serializers.PrimaryKeyRelatedField(queryset=Issue.objects.all())
 
     class Meta:
         model = Comment
-        fields = ('id', 'description', 'author', 'issue', 'created_time')
+        fields = ('id', 'description', 'author', 'created_time')
