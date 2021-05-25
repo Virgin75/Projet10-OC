@@ -5,7 +5,7 @@ from django.contrib import admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^user/', include(('users.urls', 'users'), namespace='users')),
-    url('', include(('issuetracker.urls', 'issuetracker'),
-                    namespace='issuetracker')),
+    url(r'^v1/user/', include(('users.urls', 'users'), namespace='users')),
+    url('v1/', include(('issuetracker.urls', 'issuetracker'),
+                       namespace='issuetracker')),
 ]
