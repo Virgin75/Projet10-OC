@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
+from users.models import User
 import uuid
 
 
@@ -9,6 +9,8 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=500)
     type = models.CharField(max_length=50)
+    author_user_id = models.ForeignKey(User, null=True,
+                                       on_delete=models.CASCADE)
     contributors = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through='Contributor',

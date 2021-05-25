@@ -22,6 +22,9 @@ class ListCreateProject(generics.ListCreateAPIView):
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author_user_id=self.request.user)
     # permission_classes = [permissions.IsAuthenticated]
 
 

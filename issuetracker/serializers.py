@@ -27,9 +27,12 @@ class ContributorDetailsSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
 
+    author_user_id = serializers.PrimaryKeyRelatedField(
+        read_only=True)
+
     class Meta:
         model = Project
-        fields = ('id', 'title', 'description', 'type')
+        fields = ('id', 'title', 'description', 'type', 'author_user_id')
 
 
 class IssueSerializer(serializers.ModelSerializer):
