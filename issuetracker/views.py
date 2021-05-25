@@ -20,12 +20,16 @@ class ListCreateProject(generics.ListCreateAPIView):
     Endpoint: .../projects/
     """
 
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        '''Get only the list of projects of the logged in user'''
+        user = self.request.user
+        return Project.objects.filter(author_user_id=user)
 
     def perform_create(self, serializer):
         serializer.save(author_user_id=self.request.user)
-    # permission_classes = [permissions.IsAuthenticated]
 
 
 class RetrieveUpdateDestroyProject(generics.RetrieveUpdateDestroyAPIView):
@@ -40,7 +44,7 @@ class RetrieveUpdateDestroyProject(generics.RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'project_id'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class ListCreateProjectContributor(generics.ListCreateAPIView):
@@ -84,6 +88,7 @@ class DestroyContributor(generics.DestroyAPIView):
 
     serializer_class = ContributorListSerializer
     lookup_field = 'user_id'
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -102,6 +107,7 @@ class ListCreateIssue(generics.ListCreateAPIView):
     """
 
     serializer_class = IssueSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -126,6 +132,7 @@ class UpdateDestroyIssue(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = IssueSerializer
     lookup_url_kwarg = 'issue_id'
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -149,6 +156,7 @@ class ListCreateComment(generics.ListCreateAPIView):
     """
 
     serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -174,6 +182,7 @@ class RetrieveUpdateDestroyComment(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = CommentSerializer
     lookup_url_kwarg = 'comment_id'
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         issue = get_object_or_404(Issue, id=self.kwargs.get('issue_id'))
