@@ -1,9 +1,11 @@
 from datetime import datetime
 from rest_framework import permissions, generics
+from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from users.models import User
 from issuetracker.models import Comment, Project, Contributor, Issue
+from issuetracker.permissions import IsOwnerOfProject, IsOwner
 from issuetracker.serializers import (ProjectSerializer,
                                       ContributorListSerializer,
                                       ContributorDetailsSerializer,
@@ -17,14 +19,13 @@ class ListCreateProject(generics.ListCreateAPIView):
 
     Model: Project
     Allowed methods: GET, POST.
-    Endpoint: .../projects/
     """
 
     serializer_class = ProjectSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        '''Get only the list of projects of the logged in user'''
+        '''Get only the list of projects of the logged in user.'''
         user = self.request.user
         return Project.objects.filter(author_user_id=user)
 
@@ -44,7 +45,7 @@ class RetrieveUpdateDestroyProject(generics.RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'project_id'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOfProject]
 
 
 class ListCreateProjectContributor(generics.ListCreateAPIView):
@@ -64,6 +65,9 @@ class ListCreateProjectContributor(generics.ListCreateAPIView):
         if self.request.method == 'GET':
             project = get_object_or_404(Project,
                                         id=self.kwargs.get('project_id'))
+            if not project.author_user_id == self.request.user:
+                raise PermissionDenied({"message":
+                                        "You don't have permission to access this project"})
             return super().get_queryset().filter(project=project)
 
     def get_serializer_class(self):
@@ -88,7 +92,7 @@ class DestroyContributor(generics.DestroyAPIView):
 
     serializer_class = ContributorListSerializer
     lookup_field = 'user_id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOfProject]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -132,7 +136,7 @@ class UpdateDestroyIssue(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = IssueSerializer
     lookup_url_kwarg = 'issue_id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -182,7 +186,7 @@ class RetrieveUpdateDestroyComment(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = CommentSerializer
     lookup_url_kwarg = 'comment_id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         issue = get_object_or_404(Issue, id=self.kwargs.get('issue_id'))
