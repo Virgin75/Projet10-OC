@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 
 from users.models import User
 from issuetracker.models import Comment, Project, Contributor, Issue
-from issuetracker.permissions import IsOwnerOfProject, IsOwner
+from issuetracker.permissions import IsOwnerOfProject, IsOwner, IsContributor
 from issuetracker.serializers import (ProjectSerializer,
                                       ContributorListSerializer,
                                       ContributorDetailsSerializer,
@@ -107,11 +107,10 @@ class ListCreateIssue(generics.ListCreateAPIView):
 
     Model: Issue
     Allowed methods: GET, POST.
-    Endpoint: .../projects/<uuid:project_id>/issues/
     """
 
     serializer_class = IssueSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsContributor]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -131,12 +130,11 @@ class UpdateDestroyIssue(generics.RetrieveUpdateDestroyAPIView):
 
     Model: Issue
     Allowed methods: GET, PUT, PATCH, DELETE.
-    Endpoint: .../projects/<uuid:project_id>/issues/<int:issue_id>/
     """
 
     serializer_class = IssueSerializer
     lookup_url_kwarg = 'issue_id'
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwner, IsContributor]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -156,11 +154,10 @@ class ListCreateComment(generics.ListCreateAPIView):
 
     Model: Comment
     Allowed methods: GET, POST.
-    Endpoint: .../projects/<uuid:project_id>/issues/<int:issue_id>/comments/
     """
 
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsContributor]
 
     def get_queryset(self):
         project = get_object_or_404(Project, id=self.kwargs.get('project_id'))
@@ -181,12 +178,11 @@ class RetrieveUpdateDestroyComment(generics.RetrieveUpdateDestroyAPIView):
 
     Model: Comment
     Allowed methods: GET, PUT, PATCH, DELETE.
-    Endpoint: .../projects/<uuid:project_id>/issues/<int:issue_id>/comments/<int:comment_id>/
     """
 
     serializer_class = CommentSerializer
     lookup_url_kwarg = 'comment_id'
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwner, IsContributor]
 
     def get_queryset(self):
         issue = get_object_or_404(Issue, id=self.kwargs.get('issue_id'))
