@@ -1,14 +1,24 @@
-from rest_framework import permissions
+from rest_framework import permissions, status
 from issuetracker.models import Project, Contributor
+from rest_framework.exceptions import APIException
+
+
+class CustomForbidden(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = 'Page Not Found.'
 
 
 class IsOwnerOfProject(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Only owner of the object are allowed to retrieve and edit it.
         if isinstance(obj, Project):
-            return obj.author_user_id == request.user
+            if obj.author_user_id == request.user:
+                return True
+            raise CustomForbidden
         elif isinstance(obj, Contributor):
-            return obj.project.author_user_id == request.user
+            if obj.project.author_user_id == request.user:
+                return True
+            raise CustomForbidden
 
 
 class IsOwner(permissions.BasePermission):
@@ -17,7 +27,9 @@ class IsOwner(permissions.BasePermission):
         # Those wo do not own the object can read it.
         if request.method == 'GET':
             return True
-        return obj.author == request.user
+        if obj.author == request.user:
+            return True
+        raise CustomForbidden
 
 
 class IsContributor(permissions.BasePermission):
@@ -31,4 +43,4 @@ class IsContributor(permissions.BasePermission):
 
         if request.user in allowed_users:
             return True
-        return False
+        raise CustomForbidden

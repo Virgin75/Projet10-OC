@@ -39,7 +39,6 @@ class RetrieveUpdateDestroyProject(generics.RetrieveUpdateDestroyAPIView):
 
     Model: Project
     Allowed methods: GET, PUT, PATCH, DELETE.
-    Endpoint: .../projects/<uuid:project_id>/
     """
 
     lookup_url_kwarg = 'project_id'
@@ -54,7 +53,6 @@ class ListCreateProjectContributor(generics.ListCreateAPIView):
 
     Model: Contributor (through table User<>Project)
     Allowed methods: GET, POST.
-    Endpoint: .../projects/<uuid:project_id>/users/
     """
 
     queryset = Contributor.objects.all()
@@ -87,7 +85,6 @@ class DestroyContributor(generics.DestroyAPIView):
 
     Model: Contributor
     Allowed methods: DELETE.
-    Endpoint: .../projects/<uuid:project_id>/users/<int:user_id>/
     """
 
     serializer_class = ContributorListSerializer
