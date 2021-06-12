@@ -14,7 +14,7 @@ Please find below the available models and their relations.
 Here's how to start the development server:
 
 1. Clone this repo and 'cd' to the local directory.
-2. Create a new virtual environement with '''console python3 -m venv env'''
-3. Activate this virtual env with '''console source env/bin/activate'''
-4. Install the required dependencies with '''console pip3 install -r requirements.txt'''
-5. Start the server with '''console python3 manage.py runserver'''
+2. Create a new virtual environement with ```console python3 -m venv env```
+3. Activate this virtual env with ```console source env/bin/activate```
+4. Install the required dependencies with ```console pip3 install -r requirements.txt```
+5. Start the server with ```console python3 manage.py runserver```
